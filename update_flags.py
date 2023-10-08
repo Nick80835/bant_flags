@@ -9,7 +9,7 @@ remote_flags = get("https://flags.plum.moe/api/flags").text.split("\n")
 [remove(i) for i in [(flags_folder / i).resolve() for i in listdir(flags_folder)]]
 
 async def download_flags():
-    async with ClientSession(headers={"Content-Type": "application/json"}) as session:
+    async with ClientSession() as session:
         async def get_flag(flag_name):
             with open((flags_folder / (flag_name + ".png")).resolve(), 'wb') as fh:
                 fh.write(await (await session.get("https://flags.plum.moe/flags/" + flag_name + ".png")).read())
