@@ -3,7 +3,7 @@
 // @namespace   bantflags
 // @description Extra flags for /bant/.
 // @match       http*://boards.4chan.org/bant/*
-// @version     1.4.2
+// @version     1.4.3
 // @grant       GM_xmlhttpRequest
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -164,7 +164,7 @@ const flagsApi = {
 const flagCache = {
   cache: JSON.parse(monkey.getValue("bantflagscache", "{}")),
   changed: false,
-  limit: 2000,
+  limit: 250,
   addItem: (postID, flags) => {
     while (Object.keys(flagCache.cache).length >= flagCache.limit) {
       debug("Removing item from cache: " + flagCache.cache[Object.keys(flagCache.cache)[0]])
