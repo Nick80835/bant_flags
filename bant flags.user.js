@@ -3,7 +3,7 @@
 // @namespace   bantflags
 // @description Extra flags for /bant/.
 // @match       http*://boards.4chan.org/bant/*
-// @version     1.4.3
+// @version     1.4.4
 // @grant       GM_xmlhttpRequest
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -165,6 +165,10 @@ const flagCache = {
   cache: JSON.parse(monkey.getValue("bantflagscache", "{}")),
   changed: false,
   limit: 250,
+  refresh: () => {
+    debug("Refreshing cache from storage.")
+    flagCache.cache = JSON.parse(monkey.getValue("bantflagscache", "{}"))
+  },
   addItem: (postID, flags) => {
     while (Object.keys(flagCache.cache).length >= flagCache.limit) {
       debug("Removing item from cache: " + flagCache.cache[Object.keys(flagCache.cache)[0]])
@@ -177,7 +181,7 @@ const flagCache = {
   },
   save: () => {
     if (flagCache.changed == true) {
-      debug("Saving cache")
+      debug("Saving cache to storage.")
       monkey.setValue("bantflagscache", JSON.stringify(flagCache.cache))
       flagCache.changed = false
     }
@@ -290,6 +294,7 @@ function makeFlagSelect() {
 
 /** Get flags from the database using values in postNrs and pass the response on to onFlagsLoad */
 function resolveFlags(post_numbers) {
+  flagCache.refresh()
   let cached_post_numbers = []
 
   post_numbers = post_numbers.filter((num) => {
