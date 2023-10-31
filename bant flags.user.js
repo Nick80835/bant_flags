@@ -3,7 +3,7 @@
 // @namespace   bantflags
 // @description Extra flags for /bant/.
 // @match       http*://boards.4chan.org/bant/*
-// @version     1.4.6
+// @version     1.4.7
 // @grant       GM_xmlhttpRequest
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -282,9 +282,11 @@ function makeFlagSelect() {
   const flagList = flagSelect.querySelector("ul")
 
   for (const flag of flagCache.all_flags) {
+    let escaped_flag = flag.replace(/'/g, "&#039;").replace(/"/g, "&quot;")
+
     flagList.appendChild(
       makeElement("li", {
-        innerHTML: `<img src="${flagsApi.files}${flag}.png" title="${flag}" onerror="console.log('[BantFlags] Falling back on flag: ${flag}'); this.onerror = null; this.src = '${flagsApi.files_fallback}${flag}.png'"><span>${flag}</span>`
+        innerHTML: `<img src="${flagsApi.files}${escaped_flag}.png" title="${escaped_flag}" onerror="console.log('[BantFlags] Falling back on flag: ${flag}'); this.onerror = null; this.src = '${flagsApi.files_fallback}${escaped_flag}.png'"><span>${escaped_flag}</span>`
       })
     )
   }
@@ -333,9 +335,11 @@ function resolveFlags(post_numbers) {
     let flagContainer = document.querySelector(`[id = "pc${post_id}"] .postInfo .nameBlock`)
 
     cached_flags.forEach((flag) => {
+      let escaped_flag = flag.replace(/'/g, "&#039;").replace(/"/g, "&quot;")
+
       flagContainer.append(
         makeElement("a", {
-          innerHTML: `<img src="${flagsApi.files}${flag}.png" title="${flag}" onerror="console.log('[BantFlags] Falling back on flag: ${flag}'); this.onerror = null; this.src = '${flagsApi.files_fallback}${flag}.png'">`,
+          innerHTML: `<img src="${flagsApi.files}${escaped_flag}.png" title="${escaped_flag}" onerror="console.log('[BantFlags] Falling back on flag: ${escaped_flag}'); this.onerror = null; this.src = '${flagsApi.files_fallback}${escaped_flag}.png'">`,
           className: "bantFlag",
           target: "_blank"
         })
@@ -365,9 +369,11 @@ function resolveFlags(post_numbers) {
       let flagContainer = document.querySelector(`[id = "pc${post_id}"] .postInfo .nameBlock`)
 
       for (const flag of flags) {
+        let escaped_flag = flag.replace(/'/g, "&#039;").replace(/"/g, "&quot;")
+
         flagContainer.append(
           makeElement("a", {
-            innerHTML: `<img src="${flagsApi.files}${flag}.png" title="${flag}" onerror="console.log('[BantFlags] Falling back on flag: ${flag}'); this.onerror = null; this.src = '${flagsApi.files_fallback}${flag}.png'">`,
+            innerHTML: `<img src="${flagsApi.files}${escaped_flag}.png" title="${escaped_flag}" onerror="console.log('[BantFlags] Falling back on flag: ${escaped_flag}'); this.onerror = null; this.src = '${flagsApi.files_fallback}${escaped_flag}.png'">`,
             className: "bantFlag",
             target: "_blank"
           })
