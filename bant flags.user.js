@@ -3,7 +3,7 @@
 // @namespace   bantflags
 // @description Extra flags for /bant/.
 // @match       http*://boards.4chan.org/bant/*
-// @version     1.4.5
+// @version     1.4.6
 // @grant       GM_xmlhttpRequest
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -284,7 +284,7 @@ function makeFlagSelect() {
   for (const flag of flagCache.all_flags) {
     flagList.appendChild(
       makeElement("li", {
-        innerHTML: "<img src='" + flagsApi.files + flag + ".png' title='" + flag + "'><span>" + flag + "</span>"
+        innerHTML: `<img src="${flagsApi.files}${flag}.png" title="${flag}" onerror="console.log('[BantFlags] Falling back on flag: ${flag}'); this.onerror = null; this.src = '${flagsApi.files_fallback}${flag}.png'"><span>${flag}</span>`
       })
     )
   }
