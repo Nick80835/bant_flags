@@ -3,7 +3,7 @@
 // @namespace   bantflags
 // @description Extra flags for /bant/.
 // @match       http*://boards.4chan.org/bant/*
-// @version     1.4.4
+// @version     1.4.5
 // @grant       GM_xmlhttpRequest
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -131,6 +131,7 @@ const bantFlagsState = {
   my_flags: monkey.getValue("bantflags", []),
   flags_loaded: false,
   max_flags: 30,
+  scramble_length: 4,
   debug_mode: false
 }
 
@@ -163,6 +164,7 @@ const flagsApi = {
 
 const flagCache = {
   cache: JSON.parse(monkey.getValue("bantflagscache", "{}")),
+  all_flags: JSON.parse(monkey.getValue("allflagscache", "[]")),
   changed: false,
   limit: 250,
   refresh: () => {
@@ -185,6 +187,30 @@ const flagCache = {
       monkey.setValue("bantflagscache", JSON.stringify(flagCache.cache))
       flagCache.changed = false
     }
+  },
+  clear: () => {
+    debug("Wiping cache.")
+    monkey.setValue("bantflagscache", JSON.stringify({}))
+    flagCache.refresh()
+    monkey.setValue("allflagscache", JSON.stringify([]))
+    flagCache.update_all_flags()
+  },
+  update_all_flags: () => {
+    http.get(flagsApi.flags, function (resp) {
+      if (resp.status !== 200) {
+        log("Couldn't get flag list from server.")
+        return
+      }
+
+      flagCache.all_flags = resp.responseText.split("\n")
+      monkey.setValue("allflagscache", JSON.stringify(flagCache.all_flags))
+    })
+  }
+}
+
+if (monkey.getValue("scrambled", false)) {
+  if (flagCache.all_flags.length == 0) {
+    flagCache.update_all_flags()
   }
 }
 
@@ -195,7 +221,7 @@ const flagCache = {
 //
 
 window.addEventListener("load", () => {
-  ;(async () => {
+  ; (async () => {
     if (!location.href.match(/\/thread\//)) await new Promise((r) => setTimeout(r, 500))
     bantFlagsMain()
   })()
@@ -247,49 +273,40 @@ function setFlag(flag, save) {
     saveFlags()
 }
 
-/** Get flag data from server and fill flags form. */
+/** Fill flags form. */
 function makeFlagSelect() {
-  http.get(flagsApi.flags, function (resp) {
-    debug("Loading flags.")
+  // This is hacking togther a fake <select> so that images work inside
+  // it, thanks shitty browser controls.
+  const flagSelect = document.getElementById("flagSelect")
+  const flagInput = flagSelect.querySelector("input")
+  const flagList = flagSelect.querySelector("ul")
 
-    if (resp.status !== 200) {
-      log("Couldn't get flag list from server")
-      return
+  for (const flag of flagCache.all_flags) {
+    flagList.appendChild(
+      makeElement("li", {
+        innerHTML: "<img src='" + flagsApi.files + flag + ".png' title='" + flag + "'><span>" + flag + "</span>"
+      })
+    )
+  }
+
+  flagSelect.addEventListener("click", (e) => {
+    // Maybe we clicked the flag image
+    const node = e.target.nodeName === "LI" ? e.target : e.target.parentNode
+    if (node.nodeName === "LI") {
+      flagInput.value = node.querySelector("span").innerHTML
     }
 
-    // This is hacking togther a fake <select> so that images work inside
-    // it, thanks shitty browser controls.
-    const flagSelect = document.getElementById("flagSelect")
-    const flagInput = flagSelect.querySelector("input")
-    const flagList = flagSelect.querySelector("ul")
-
-    for (const flag of resp.responseText.split("\n")) {
-      flagList.appendChild(
-        makeElement("li", {
-          innerHTML: "<img src='" + flagsApi.files + flag + ".png' title='" + flag + "'><span>" + flag + "</span>"
-        })
-      )
-    }
-
-    flagSelect.addEventListener("click", (e) => {
-      // Maybe we clicked the flag image
-      const node = e.target.nodeName === "LI" ? e.target : e.target.parentNode
-      if (node.nodeName === "LI") {
-        flagInput.value = node.querySelector("span").innerHTML
-      }
-
-      flagList.classList.toggle("hide")
-    })
-
-    const flagButton = document.getElementById("append_flag_button")
-    flagButton.addEventListener("click", () => setFlag())
-    flagButton.disabled = false
-
-    document.getElementById("flagLoad").style.display = "none"
-    document.querySelector(".flagsForm").style.marginRight = "200px" // flagsForm has position: absolute and is ~200px long.
-    flagSelect.style.display = "inline-block"
-    bantFlagsState.flags_loaded = true
+    flagList.classList.toggle("hide")
   })
+
+  const flagButton = document.getElementById("append_flag_button")
+  flagButton.addEventListener("click", () => setFlag())
+  flagButton.disabled = false
+
+  document.getElementById("flagLoad").style.display = "none"
+  document.querySelector(".flagsForm").style.marginRight = "200px" // flagsForm has position: absolute and is ~200px long.
+  flagSelect.style.display = "inline-block"
+  bantFlagsState.flags_loaded = true
 }
 
 /** Get flags from the database using values in postNrs and pass the response on to onFlagsLoad */
@@ -398,17 +415,30 @@ document.addEventListener("dblclick", (e) => e.target.parentNode.classList.conta
 
 const doPostFlags = (post_number) => {
   if (monkey.getValue("bantflagsenabled", true)) {
+    if (monkey.getValue("scrambled", false)) {
+      var effective_flags = []
+
+      if (flagCache.all_flags.length != 0) {
+        for (var i = 0; i < bantFlagsState.scramble_length; i++) {
+          effective_flags.push(flagCache.all_flags[Math.floor((Math.random() * flagCache.all_flags.length))])
+        }
+      }
+    } else {
+      var effective_flags = bantFlagsState.my_flags
+    }
+
     debug(
       JSON.stringify({
         post_number: post_number,
-        flags: bantFlagsState.my_flags
+        flags: effective_flags
       })
     )
+
     http.post(
       flagsApi.post,
       JSON.stringify({
         post_number: parseInt(post_number),
-        flags: bantFlagsState.my_flags
+        flags: effective_flags
       }),
       (resp) => debug(resp.responseText)
     )
@@ -471,6 +501,36 @@ function updateMenu() {
       break
     }
   }
+
+  GM_unregisterMenuCommand("Normal")
+  GM_unregisterMenuCommand("Scrambled")
+
+  switch (monkey.getValue("scrambled", false)) {
+    case true: {
+      GM_registerMenuCommand("Scrambled", () => {
+        monkey.setValue("scrambled", false)
+        updateMenu()
+      })
+      break
+    }
+    case false: {
+      GM_registerMenuCommand("Normal", () => {
+        monkey.setValue("scrambled", true)
+        if (flagCache.all_flags.length == 0) {
+          flagCache.update_all_flags()
+        }
+        updateMenu()
+      })
+      break
+    }
+  }
+
+  GM_unregisterMenuCommand("Clear cache")
+
+  GM_registerMenuCommand("Clear cache", () => {
+    flagCache.clear()
+    updateMenu()
+  })
 }
 
 updateMenu()
