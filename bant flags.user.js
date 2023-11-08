@@ -3,7 +3,7 @@
 // @namespace   bantflags
 // @description Extra flags for /bant/.
 // @match       http*://boards.4chan.org/bant/*
-// @version     1.4.7
+// @version     1.4.8
 // @grant       GM_xmlhttpRequest
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -69,7 +69,9 @@ const flagsStyle = `
 	overflow: auto;
 	position: absolute;
 	width: 200px;
-	background-color: #fff;
+  color: maroon;
+  border: 1px solid #d9bfb7;
+	background-color: #ffe;
 }
 
 #flagSelect ul li {
@@ -286,7 +288,7 @@ function makeFlagSelect() {
 
     flagList.appendChild(
       makeElement("li", {
-        innerHTML: `<img src="${flagsApi.files}${escaped_flag}.png" title="${escaped_flag}" onerror="console.log('[BantFlags] Falling back on flag: ${flag}'); this.onerror = null; this.src = '${flagsApi.files_fallback}${escaped_flag}.png'"><span>${escaped_flag}</span>`
+        innerHTML: `<img src="${flagsApi.files}${escaped_flag}.png" title="${escaped_flag}" onerror="console.log('[BantFlags] Falling back on flag: ${flag}'); this.onerror = null; this.src = '${flagsApi.files_fallback}${escaped_flag}.png'" style="padding-right: 2px;"><span>${escaped_flag}</span>`
       })
     )
   }
