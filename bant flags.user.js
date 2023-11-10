@@ -3,7 +3,7 @@
 // @namespace   bantflags
 // @description Extra flags for /bant/.
 // @match       http*://boards.4chan.org/bant/*
-// @version     1.4.9
+// @version     1.4.10
 // @grant       GM_xmlhttpRequest
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -86,10 +86,6 @@ const flagsStyle = `
 	width: 200px;
 }
 
-#flagLoad {
-	width: 200px;
-}
-
 #flagSelect.hide {
 	display: none;
 }
@@ -109,8 +105,7 @@ const flagsStyle = `
 
 const flagsForm = `
 <span id="bantflags_container"></span>
-<button type="button" style="width: 50px;" id="append_flag_button" title="Click to add selected flag to your flags. Click on flags to remove them." disabled="true">&lt;&lt;</button>
-<button id="flagLoad" type="button">Click to load flags.</button>
+<button type="button" style="width: 50px;" id="append_flag_button" title="Click to add selected flag to your flags. Click on flags to remove them.">&lt;&lt;</button>
 <div id="flagSelect">
 	<ul class="hide"></ul>
 	<input type="button" value="(You)" onclick="">
@@ -131,7 +126,6 @@ const monkey = {
 
 const bantFlagsState = {
   my_flags: monkey.getValue("bantflags", []),
-  flags_loaded: false,
   max_flags: 30,
   scramble_length: 4,
   debug_mode: false
@@ -256,11 +250,6 @@ function setFlag(flag, save) {
       className: "bantflags_flag",
       onclick: function () {
         container.removeChild(this)
-
-        if (bantFlagsState.flags_loaded) {
-          toggleFlagButton("on")
-        }
-
         saveFlags()
       }
     })
@@ -305,10 +294,8 @@ function makeFlagSelect() {
   flagButton.addEventListener("click", () => setFlag())
   flagButton.disabled = false
 
-  document.getElementById("flagLoad").style.display = "none"
   document.querySelector(".flagsForm").style.marginRight = "200px" // flagsForm has position: absolute and is ~200px long.
   flagSelect.style.display = "inline-block"
-  bantFlagsState.flags_loaded = true
 }
 
 /** Get flags from the database using values in postNrs and pass the response on to onFlagsLoad */
@@ -406,7 +393,7 @@ function bantFlagsMain() {
     setFlag(flag)
   }
 
-  document.getElementById("flagLoad").addEventListener("click", makeFlagSelect, { once: true })
+  makeFlagSelect()
 
   const post_numbers = []
   for (const post of document.querySelectorAll(".postContainer")) {
