@@ -3,7 +3,7 @@
 // @namespace   bantflags
 // @description Extra flags for /bant/.
 // @match       http*://boards.4chan.org/bant/*
-// @version     1.4.8
+// @version     1.4.9
 // @grant       GM_xmlhttpRequest
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -210,10 +210,8 @@ const flagCache = {
   }
 }
 
-if (monkey.getValue("scrambled", false)) {
-  if (flagCache.all_flags.length == 0) {
-    flagCache.update_all_flags()
-  }
+if (flagCache.all_flags.length == 0) {
+  flagCache.update_all_flags()
 }
 
 //
