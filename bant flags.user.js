@@ -23,88 +23,88 @@
 
 const flagsStyle = `
 .bantFlag {
-	padding: 0px 0px 0px 5px;
-	display: inline-block;
-	width: 16px;
-	height: 11px;
-	position: relative;
+  padding: 0px 0px 0px 5px;
+  display: inline-block;
+  width: 16px;
+  height: 11px;
+  position: relative;
 }
 
 .bantflags_flag {
-	padding: 1px;
+  padding: 1px;
 }
 
 [title ^= "Romania"]
 {
-	position: relative;
-	animation: shake 0.1s linear infinite;
+  position: relative;
+  animation: shake 0.1s linear infinite;
 }
 
 @keyframes shake {
-	0 % { left: 1px; }
-	25 % { top: 2px; }
-	50 % { left: 1px; }
-	75 % { left: 0px; }
-	100 % { left: 2px; }
+  0 % { left: 1px; }
+  25 % { top: 2px; }
+  50 % { left: 1px; }
+  75 % { left: 0px; }
+  100 % { left: 2px; }
 }
 
 .flagsForm {
-	float: right;
-	clear: right;
-	margin: 4px 0 4px 0;
+  float: right;
+  clear: right;
+  margin: 4px 0 4px 0;
 }
 
 #flagSelect {
-	display: none;
+  display: none;
   position: absolute;
 }
 
 #flagSelect ul {
-	list-style-type: none;
-	padding: 0;
-	margin-bottom: 0;
-	cursor: pointer;
-	bottom: 100%;
-	height: 200px;
-	overflow: auto;
-	position: absolute;
-	width: 200px;
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 0;
+  cursor: pointer;
+  bottom: 100%;
+  height: 200px;
+  overflow: auto;
+  position: absolute;
+  width: 200px;
   color: maroon;
   border: 1px solid #d9bfb7;
-	background-color: #ffe;
+  background-color: #ffe;
 }
 
 #flagSelect ul li {
-	display: block;
+  display: block;
 }
 
 #flagSelect ul li:hover {
-	background-color: #ddd;
+  background-color: #ddd;
 }
 
 #flagSelect input {
-	width: 200px;
+  width: 200px;
 }
 
 #flagLoad {
-	width: 200px;
+  width: 200px;
 }
 
 #flagSelect.hide {
-	display: none;
+  display: none;
 }
 
 #flagSelect img {
-	margin-left: 2px;
+  margin-left: 2px;
 }
 
 .flag{
-	top: 0px;
-	left: -1px;
+  top: 0px;
+  left: -1px;
 }
 
 .hide {
-	display: none;
+  display: none;
 }`
 
 const flagsForm = `
@@ -112,8 +112,8 @@ const flagsForm = `
 <button type="button" style="width: 50px;" id="append_flag_button" title="Click to add selected flag to your flags. Click on flags to remove them." disabled="true">&lt;&lt;</button>
 <button id="flagLoad" type="button">Click to load flags.</button>
 <div id="flagSelect">
-	<ul class="hide"></ul>
-	<input type="button" value="(You)" onclick="">
+  <ul class="hide"></ul>
+  <input type="button" value="(You)" onclick="">
 </div>`
 
 const debug = (text) => bantFlagsState.debug_mode && console.log("[BantFlags][Debug] " + text)
