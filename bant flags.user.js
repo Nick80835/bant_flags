@@ -3,7 +3,7 @@
 // @namespace   bantflags
 // @description Extra flags for /bant/.
 // @match       http*://boards.4chan.org/bant/*
-// @version     1.4.11
+// @version     1.4.12
 // @grant       GM_xmlhttpRequest
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -110,11 +110,11 @@ const flagsStyle = `
 const flagsForm = `
 <span id="bantflags_container"></span>
 <button type="button" style="width: 50px;" id="append_flag_button" title="Click to add selected flag to your flags. Click on flags to remove them." disabled="true">&lt;&lt;</button>
-<button id="flagLoad" type="button">Click to load flags.</button>
 <div id="flagSelect">
-  <ul class="hide"></ul>
-  <input type="button" value="(You)" onclick="">
-</div>`
+<ul class="hide"></ul>
+<input type="button" value="(You)" onclick="">
+</div>
+<button id="flagLoad" type="button">Click to load flags.</button>`
 
 const debug = (text) => bantFlagsState.debug_mode && console.log("[BantFlags][Debug] " + text)
 const log = (text) => console.log("[BantFlags] " + text)
@@ -222,7 +222,10 @@ if (flagCache.all_flags.length == 0) {
 
 window.addEventListener("load", () => {
   ; (async () => {
-    if (!location.href.match(/\/thread\//)) await new Promise((r) => setTimeout(r, 500))
+    if (!location.href.match(/\/thread\//)) {
+      await new Promise((r) => setTimeout(r, 500))
+    }
+
     bantFlagsMain()
   })()
 })
@@ -266,11 +269,14 @@ function setFlag(flag, save) {
     })
   )
 
-  if (container.children.length >= bantFlagsState.max_flags) toggleFlagButton("off")
+  if (container.children.length >= bantFlagsState.max_flags) {
+    toggleFlagButton("off") 
+  }
 
-  if (!flag || save === true)
+  if (!flag || save === true) {
     // We've added a new flag to our selection
     saveFlags()
+  }
 }
 
 /** Fill flags form. */
