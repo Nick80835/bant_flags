@@ -19,16 +19,18 @@
 // @exclude     http*://boards.4channel.org/sp/catalog
 // @exclude     http*://boards.4channel.org/pol/catalog
 // @exclude     http*://boards.4channel.org/bant/catalog
-// @version     0.46
+// @version     0.50
+// @connect     api.flagtism.com
+// @connect	github.com
+// @connect	raw.githubusercontent.com
 // @grant       GM_xmlhttpRequest
 // @grant       GM_registerMenuCommand
-// @grant       GM_unregisterMenuCommand
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_addStyle
 // @run-at      document-end
-// @updateURL   https://raw.githubusercontent.com/Nick80835/bant_flags/main/Extra%20Flags%20for%20int.user.js
-// @downloadURL https://raw.githubusercontent.com/Nick80835/bant_flags/main/Extra%20Flags%20for%20int.user.js
+// @updateURL   https://gitlab.com/flagtism/Extra-Flags-for-4chan/raw/master/Extra%20Flags%20for%20int.user.js
+// @downloadURL https://gitlab.com/flagtism/Extra-Flags-for-4chan/raw/master/Extra%20Flags%20for%20int.user.js
 // ==/UserScript==
 
 // DO NOT EDIT ANYTHING IN THIS SCRIPT DIRECTLY - YOUR REGION SHOULD BE CONFIGURED BY USING THE CONFIGURATION BOXES (see install webms for help)
@@ -60,7 +62,7 @@ var requestRetryInterval = 5000;
 var flegsBaseUrl = 'https://github.com/flaghunters/Extra-Flags-for-4chan/raw/master/flags/';
 // remove comment and change link to add country flag icons into selection menu var countryFlegsBaseUrl = 'https://raw.githubusercontent.com/flagzzzz/Extra-Flags-for-4chan/master/flags/';
 var flagListFile = 'flag_list.txt';
-var backendBaseUrl = 'https://nun.wtf/';
+var backendBaseUrl = 'https://api.flagtism.com/';//var backendBaseUrl = 'https://nun.wtf/';
 var postUrl = 'int/post_flag_api2.php';
 var getUrl = 'int/get_flags_api2.php';
 var shortId = 'witingwc.ef.';
@@ -308,10 +310,19 @@ if (!radio || radio === "" || radio === "undefined") {
 /** parse the posts already on the page before thread updater kicks in */
 function parseOriginalPosts() {
     var tempAllPostsOnPage = document.getElementsByClassName('postContainer');
+    
+    // If no posts found, retry after a short delay (needed for index to work with 4chan X)
+    if (tempAllPostsOnPage.length === 0) {
+        setTimeout(parseOriginalPosts, 250);
+        return;
+    }
+    
     allPostsOnPage = Array.prototype.slice.call(tempAllPostsOnPage); //convert from element list to javascript array
     postNrs = allPostsOnPage.map(function (p) {
         return p.id.replace("pc", "");
     });
+    
+    resolveRefFlags();
 }
 
 /** the function to get the flags from the db uses postNrs
@@ -406,6 +417,12 @@ function onFlagsLoad(response) {
 function resolveRefFlags() {
     var boardID = window.location.pathname.split('/')[1];
     if (boardID === "int" || boardID === "sp" || boardID === "pol" || boardID === "bant") {
+
+        // Check if postNrs is empty before making request
+        if (postNrs.length === 0) {
+            console.log("No posts to resolve, skipping request");
+            return;
+        }
 
         GM_xmlhttpRequest({
             method: "POST",
@@ -511,6 +528,16 @@ document.addEventListener('4chanThreadUpdated', function (e) {
     setTimeout(resolveRefFlags, 0);
 }, false);
 
+/** Detect index page navigation when using 4chan X */
+(function() {
+    var originalPushState = history.pushState;
+    history.pushState = function() {
+        originalPushState.apply(history, arguments);
+        //setTimeout to support greasemonkey 1.x
+        setTimeout(parseOriginalPosts, 0);
+    };
+})();
+
 /** START fix flag alignment on chrome */
 function addGlobalStyle(css) {
     var head, style;
@@ -539,4 +566,3 @@ GM_addStyle('\
 /** setup init and start first calls */
 setup.init();
 parseOriginalPosts();
-resolveRefFlags();
