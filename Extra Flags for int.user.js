@@ -25,12 +25,13 @@
 // @connect	raw.githubusercontent.com
 // @grant       GM_xmlhttpRequest
 // @grant       GM_registerMenuCommand
+// @grant       GM_unregisterMenuCommand
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_addStyle
 // @run-at      document-end
-// @updateURL   https://gitlab.com/flagtism/Extra-Flags-for-4chan/raw/master/Extra%20Flags%20for%20int.user.js
-// @downloadURL https://gitlab.com/flagtism/Extra-Flags-for-4chan/raw/master/Extra%20Flags%20for%20int.user.js
+// @updateURL   https://raw.githubusercontent.com/Nick80835/bant_flags/main/Extra%20Flags%20for%20int.user.js
+// @downloadURL https://raw.githubusercontent.com/Nick80835/bant_flags/main/Extra%20Flags%20for%20int.user.js
 // ==/UserScript==
 
 // DO NOT EDIT ANYTHING IN THIS SCRIPT DIRECTLY - YOUR REGION SHOULD BE CONFIGURED BY USING THE CONFIGURATION BOXES (see install webms for help)
